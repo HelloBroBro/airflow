@@ -871,7 +871,9 @@ jobs:
       - name: "Prepare airflow package: wheel"
         run: breeze release-management prepare-airflow-package --version-suffix-for-pypi dev0
       - name: "Verify wheel packages with twine"
-        run: pipx install twine --force && twine check dist/*.whl
+        run: |
+          pipx uninstall twine || true
+          pipx install twine && twine check dist/*.whl
       - name: "Test providers issue generation automatically"
         run: >
           breeze release-management generate-issue-content-providers
@@ -931,7 +933,9 @@ jobs:
           breeze release-management prepare-airflow-package
           --version-suffix-for-pypi dev0 --package-format sdist
       - name: "Verify sdist packages with twine"
-        run: pipx install twine --force && twine check dist/*.tar.gz
+        run: |
+          pipx uninstall twine || true
+          pipx install twine && twine check dist/*.tar.gz
       - name: "Generate source constraints from CI image"
         shell: bash
         run: >
@@ -1866,11 +1870,11 @@ jobs:
           needs.build-info.outputs.default-branch == 'main'
       - name: "Install Breeze"
         uses: ./.github/actions/breeze
+        with:
+          python-version: ${{ env.REPRODUCIBLE_PYTHON_VERSION }}
         if: >
           needs.build-info.outputs.in-workflow-build == 'true' &&
           needs.build-info.outputs.default-branch == 'main'
-        with:
-          python-version: ${{ env.REPRODUCIBLE_PYTHON_VERSION }}
       - name: >
           Build PROD Images
           ${{needs.build-info.outputs.all-python-versions-list-as-string}}:${{env.IMAGE_TAG}}
@@ -1920,6 +1924,8 @@ jobs:
           needs.build-info.outputs.default-branch == 'main'
       - name: "Install Breeze"
         uses: ./.github/actions/breeze
+        with:
+          python-version: ${{ env.REPRODUCIBLE_PYTHON_VERSION }}
         if: >
           needs.build-info.outputs.in-workflow-build == 'true' &&
           needs.build-info.outputs.default-branch == 'main'
@@ -1976,6 +1982,8 @@ jobs:
           needs.build-info.outputs.default-branch == 'main'
       - name: "Install Breeze"
         uses: ./.github/actions/breeze
+        with:
+          python-version: ${{ env.REPRODUCIBLE_PYTHON_VERSION }}
         if: >
           needs.build-info.outputs.in-workflow-build == 'true' &&
           needs.build-info.outputs.default-branch == 'main'
@@ -2031,6 +2039,8 @@ jobs:
           needs.build-info.outputs.default-branch != 'main'
       - name: "Install Breeze"
         uses: ./.github/actions/breeze
+        with:
+          python-version: ${{ env.REPRODUCIBLE_PYTHON_VERSION }}
         if: >
           needs.build-info.outputs.in-workflow-build == 'true' &&
           needs.build-info.outputs.default-branch != 'main'
@@ -2083,6 +2093,8 @@ jobs:
           needs.build-info.outputs.default-branch != 'main'
       - name: "Install Breeze"
         uses: ./.github/actions/breeze
+        with:
+          python-version: ${{ env.REPRODUCIBLE_PYTHON_VERSION }}
         if: >
           needs.build-info.outputs.in-workflow-build == 'true' &&
           needs.build-info.outputs.default-branch != 'main'
@@ -2139,6 +2151,8 @@ jobs:
           needs.build-info.outputs.default-branch != 'main'
       - name: "Install Breeze"
         uses: ./.github/actions/breeze
+        with:
+          python-version: ${{ env.REPRODUCIBLE_PYTHON_VERSION }}
         if: >
           needs.build-info.outputs.in-workflow-build == 'true' &&
           needs.build-info.outputs.default-branch != 'main'
