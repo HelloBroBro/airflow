@@ -16,26 +16,23 @@
 # under the License.
 from __future__ import annotations
 
-from unittest.mock import patch
+from datetime import datetime
 
-from airflow import settings
+from airflow.models.dag import DAG
+from airflow.operators.empty import EmptyOperator
+from airflow.utils.dag_parsing_context import get_parsing_context
 
+DAG_ID = "test_dag_parsing_context"
 
-@patch("airflow.settings.conf")
-@patch.multiple("airflow.settings", SQL_ALCHEMY_V1=True)
-def test_encoding_present(mock_conf):
-    mock_conf.getjson.return_value = {}
+current_dag_id = get_parsing_context().dag_id
 
-    engine_args = settings.prepare_engine_args()
+with DAG(
+    DAG_ID,
+    start_date=datetime(2024, 2, 21),
+    schedule="0 0 * * *",
+) as the_dag:
+    EmptyOperator(task_id="visible_task")
 
-    assert "encoding" in engine_args
-
-
-@patch("airflow.settings.conf")
-@patch.multiple("airflow.settings", SQL_ALCHEMY_V1=False)
-def test_encoding_absent(mock_conf):
-    mock_conf.getjson.return_value = {}
-
-    engine_args = settings.prepare_engine_args()
-
-    assert "encoding" not in engine_args
+    if current_dag_id == DAG_ID:
+        # this task will be invisible if the DAG ID is not properly set in the parsing context.
+        EmptyOperator(task_id="conditional_task")
