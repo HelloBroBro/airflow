@@ -15,46 +15,14 @@
     specific language governing permissions and limitations
     under the License.
 
-Core Concepts
-=============================
+Dataset URI Schemes
+-------------------
 
-Here you can find detailed documentation about each one of the core concepts of Apache Airflow™ and how to use them, as well as a high-level :doc:`architectural overview <overview>`.
+This is a summary of all Apache Airflow Community provided implementations of dataset URI schemes
+exposed via Airflow core and community-managed providers.
 
-**Architecture**
+See :doc:`documentation on Datasets <apache-airflow:authoring-and-scheduling/datasets>` for details on how dataset URIs work.
 
-.. toctree::
-    :maxdepth: 2
-
-    overview
-
-
-**Workloads**
-
-.. toctree::
-    :maxdepth: 2
-
-    dags
-    dag-run
-    tasks
-    operators
-    sensors
-    taskflow
-    executor/index
-    auth-manager
-    objectstorage
-
-**Communication**
-
-.. toctree::
-    :maxdepth: 2
-
-    xcoms
-    variables
-    params
-
-**Debugging**
-
-.. toctree::
-    :maxdepth: 1
-
-    debug
+.. airflow-dataset-schemes::
+   :tags: None
+   :header-separator: "
