@@ -662,12 +662,12 @@ common-sql = [ # source: airflow/providers/common/sql/provider.yaml
   "sqlparse>=0.4.2",
 ]
 databricks = [ # source: airflow/providers/databricks/provider.yaml
-  "aiohttp>=3.9.2, <4",
-  "apache-airflow[common_sql]",
-  "databricks-sql-connector>=2.0.0, <3.0.0, !=2.9.0",
-  "requests>=2.27.0,<3",
+  "aiohttp>=3.9.2, <4;python_version != \"3.12\"",
+  "apache-airflow[common_sql];python_version != \"3.12\"",
+  "databricks-sql-connector>=2.0.0, <3.0.0, !=2.9.0;python_version != \"3.12\"",
+  "requests>=2.27.0,<3;python_version != \"3.12\"",
   # Devel dependencies for the databricks provider
-  "deltalake>=0.12.0",
+  "deltalake>=0.12.0;python_version != \"3.12\"",
 ]
 datadog = [ # source: airflow/providers/datadog/provider.yaml
   "datadog>=0.14.0",
@@ -1416,6 +1416,7 @@ combine-as-imports = true
 "tests/providers/openai/operators/test_openai.py" = ["E402"]
 "tests/providers/qdrant/hooks/test_qdrant.py" = ["E402"]
 "tests/providers/qdrant/operators/test_qdrant.py" = ["E402"]
+"tests/providers/snowflake/operators/test_snowflake_sql.py" = ["E402"]
 
 # All the modules which do not follow D105 yet, please remove as soon as it becomes compatible
 "airflow/callbacks/callback_requests.py" = ["D105"]
