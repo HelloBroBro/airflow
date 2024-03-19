@@ -1533,21 +1533,19 @@ class TestDag:
 
     def test_duplicate_task_ids_not_allowed_with_dag_context_manager(self):
         """Verify tasks with Duplicate task_id raises error"""
-        with pytest.raises(DuplicateTaskIdFound, match="Task id 't1' has already been added to the DAG"):
-            with DAG("test_dag", start_date=DEFAULT_DATE) as dag:
-                op1 = EmptyOperator(task_id="t1")
-                op2 = BashOperator(task_id="t1", bash_command="sleep 1")
-                op1 >> op2
+        with DAG("test_dag", start_date=DEFAULT_DATE) as dag:
+            op1 = EmptyOperator(task_id="t1")
+            with pytest.raises(DuplicateTaskIdFound, match="Task id 't1' has already been added to the DAG"):
+                BashOperator(task_id="t1", bash_command="sleep 1")
 
         assert dag.task_dict == {op1.task_id: op1}
 
     def test_duplicate_task_ids_not_allowed_without_dag_context_manager(self):
         """Verify tasks with Duplicate task_id raises error"""
+        dag = DAG("test_dag", start_date=DEFAULT_DATE)
+        op1 = EmptyOperator(task_id="t1", dag=dag)
         with pytest.raises(DuplicateTaskIdFound, match="Task id 't1' has already been added to the DAG"):
-            dag = DAG("test_dag", start_date=DEFAULT_DATE)
-            op1 = EmptyOperator(task_id="t1", dag=dag)
-            op2 = EmptyOperator(task_id="t1", dag=dag)
-            op1 >> op2
+            EmptyOperator(task_id="t1", dag=dag)
 
         assert dag.task_dict == {op1.task_id: op1}
 
@@ -3050,8 +3048,7 @@ class TestDagDecorator:
 
     def test_fileloc(self):
         @dag_decorator(default_args=self.DEFAULT_ARGS)
-        def noop_pipeline():
-            ...
+        def noop_pipeline(): ...
 
         dag = noop_pipeline()
         assert isinstance(dag, DAG)
@@ -3062,8 +3059,7 @@ class TestDagDecorator:
         """Test that checks you can set dag_id from decorator."""
 
         @dag_decorator("test", default_args=self.DEFAULT_ARGS)
-        def noop_pipeline():
-            ...
+        def noop_pipeline(): ...
 
         dag = noop_pipeline()
         assert isinstance(dag, DAG)
@@ -3073,8 +3069,7 @@ class TestDagDecorator:
         """Test that @dag uses function name as default dag id."""
 
         @dag_decorator(default_args=self.DEFAULT_ARGS)
-        def noop_pipeline():
-            ...
+        def noop_pipeline(): ...
 
         dag = noop_pipeline()
         assert isinstance(dag, DAG)
@@ -3130,8 +3125,7 @@ class TestDagDecorator:
         @dag_decorator(
             "test-dag", start_date=DEFAULT_DATE, template_searchpath=os.fspath(path.parent), doc_md=path.name
         )
-        def markdown_docs():
-            ...
+        def markdown_docs(): ...
 
         dag = markdown_docs()
         assert isinstance(dag, DAG)
@@ -3227,8 +3221,7 @@ class TestDagDecorator:
     def test_warning_location(self):
         # NOTE: This only works as long as there is some warning we can emit from `DAG()`
         @dag_decorator(schedule_interval=None)
-        def mydag():
-            ...
+        def mydag(): ...
 
         with pytest.warns(RemovedInAirflow3Warning) as warnings:
             line = sys._getframe().f_lineno + 1
@@ -4106,16 +4099,13 @@ class TestTaskClearingSetupTeardownBehavior:
         with DAG(dag_id="test_dag", start_date=pendulum.now()) as dag:
 
             @setup
-            def my_setup():
-                ...
+            def my_setup(): ...
 
             @task_decorator
-            def my_work():
-                ...
+            def my_work(): ...
 
             @teardown
-            def my_teardown():
-                ...
+            def my_teardown(): ...
 
             s1 = my_setup()
             w1 = my_work()
