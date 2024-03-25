@@ -17,13 +17,24 @@
 # under the License.
 from __future__ import annotations
 
-from importlib import import_module
+from typing import TYPE_CHECKING
 
-import pytest
+if TYPE_CHECKING:
+    from sqlalchemy.orm import Session
 
-from airflow.exceptions import AirflowProviderDeprecationWarning
 
+class BlankSentry:
+    """Blank class for Sentry."""
 
-def test_deprecated_module():
-    with pytest.warns(AirflowProviderDeprecationWarning):
-        import_module("airflow.providers.google.cloud.operators.automl")
+    def add_tagging(self, task_instance):
+        """Blank function for tagging."""
+
+    def add_breadcrumbs(self, task_instance, session: Session | None = None):
+        """Blank function for breadcrumbs."""
+
+    def enrich_errors(self, run):
+        """Blank function for formatting a TaskInstance._run_raw_task."""
+        return run
+
+    def flush(self):
+        """Blank function for flushing errors."""

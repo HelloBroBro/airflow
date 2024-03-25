@@ -15,15 +15,15 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
+"""Sentry Integration."""
+
 from __future__ import annotations
 
-from importlib import import_module
+from airflow.configuration import conf
+from airflow.sentry.blank import BlankSentry
 
-import pytest
+Sentry: BlankSentry = BlankSentry()
+if conf.getboolean("sentry", "sentry_on", fallback=False):
+    from airflow.sentry.configured import ConfiguredSentry
 
-from airflow.exceptions import AirflowProviderDeprecationWarning
-
-
-def test_deprecated_module():
-    with pytest.warns(AirflowProviderDeprecationWarning):
-        import_module("airflow.providers.google.cloud.operators.automl")
+    Sentry = ConfiguredSentry()
