@@ -1,4 +1,3 @@
-#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -17,35 +16,34 @@
 # under the License.
 from __future__ import annotations
 
-import os
 from datetime import datetime
 
-from airflow import models
-from airflow.providers.docker.operators.docker_swarm import DockerSwarmOperator
+from airflow.models.dag import DAG
+from airflow.operators.empty import EmptyOperator
+from airflow.providers.yandex.operators.yq import YQExecuteQueryOperator
+from tests.system.utils import get_test_env_id
 
-ENV_ID = os.environ.get("SYSTEM_TESTS_ENV_ID")
-DAG_ID = "docker_swarm_dag"
+ENV_ID = get_test_env_id()
+DAG_ID = "example_yandexcloud_yq"
 
-with models.DAG(
-    dag_id=DAG_ID,
-    schedule="@once",
+with DAG(
+    DAG_ID,
+    schedule=None,
     start_date=datetime(2021, 1, 1),
-    catchup=False,
-    tags=["example", "docker"],
+    tags=["example"],
 ) as dag:
-    t1 = DockerSwarmOperator(
-        api_version="auto",
-        docker_url="unix://var/run/docker.sock",  # Set your docker URL
-        command="/bin/sleep 10",
-        image="centos:latest",
-        auto_remove="success",
-        task_id="sleep_with_swarm",
+    run_this_last = EmptyOperator(
+        task_id="run_this_last",
     )
 
-    (
-        # TEST BODY
-        t1
-    )
+    yq_operator = YQExecuteQueryOperator(task_id="sample_query", sql="select 33 as d, 44 as t")
+    yq_operator >> run_this_last
+
+    from tests.system.utils.watcher import watcher
+
+    # This test needs watcher in order to properly mark success/failure
+    # when "teardown" task with trigger rule is part of the DAG
+    list(dag.tasks) >> watcher()
 
 from tests.system.utils import get_test_run  # noqa: E402
 
