@@ -14,3 +14,30 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True, order=True)
+class DagDependency:
+    """
+    Dataclass for representing dependencies between DAGs.
+
+    These are calculated during serialization and attached to serialized DAGs.
+    """
+
+    source: str
+    target: str
+    dependency_type: str
+    dependency_id: str | None = None
+
+    @property
+    def node_id(self):
+        """Node ID for graph rendering."""
+        val = f"{self.dependency_type}"
+        if self.dependency_type not in ("dataset", "dataset-alias"):
+            val += f":{self.source}:{self.target}"
+        if self.dependency_id:
+            val += f":{self.dependency_id}"
+        return val
