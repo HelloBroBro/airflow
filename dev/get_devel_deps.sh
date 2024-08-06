@@ -1,4 +1,6 @@
-#
+#!/usr/bin/env bash
+
+
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -15,24 +17,13 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-from __future__ import annotations
 
-from datetime import datetime
-from unittest.mock import Mock
-
-import pytest
-
-from airflow.ti_deps.deps.task_not_running_dep import TaskNotRunningDep
-from airflow.utils.state import State
-
-pytestmark = [pytest.mark.db_test, pytest.mark.skip_if_database_isolation_mode]
-
-
-class TestTaskNotRunningDep:
-    def test_not_running_state(self):
-        ti = Mock(state=State.QUEUED, end_date=datetime(2016, 1, 1))
-        assert TaskNotRunningDep().is_met(ti=ti)
-
-    def test_running_state(self):
-        ti = Mock(state=State.RUNNING, end_date=datetime(2016, 1, 1))
-        assert not TaskNotRunningDep().is_met(ti=ti)
+# Run this script in Breeze to get the list of all devel dependencies
+VERSION=2.9.3
+uv pip freeze --python /usr/local/bin/python | grep -v "pip==" | grep -v "uv==" > freeze.txt
+uv pip uninstall -r freeze.txt --python /usr/local/bin/python
+uv pip install "apache-airflow[all]==${VERSION}" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-${VERSION}/constraints-${PYTHON_MAJOR_MINOR_VERSION}.txt" --python /usr/local/bin/python
+uv pip freeze --python /usr/local/bin/python >non-devel-freeze.txt
+sed "s/==.*//" < freeze.txt > all_deps.txt
+sed "s/==.*//" < non-devel-freeze.txt > all_non_devel_deps.txt
+grep -v -f all_non_devel_deps.txt all_deps.txt
