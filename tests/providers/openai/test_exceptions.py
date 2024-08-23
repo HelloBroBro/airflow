@@ -15,37 +15,25 @@
 # specific language governing permissions and limitations
 # under the License.
 
----
-package-name: apache-airflow-providers-tabular
-name: Tabular
-description: |
-    `Tabular <https://tabular.io/>`__
+from __future__ import annotations
 
-state: removed
-source-date-epoch: 1723970601
-# note that those versions are maintained by release manager - do not update them manually
-versions:
-  - 1.6.0
-  - 1.5.1
-  - 1.5.0
-  - 1.4.1
-  - 1.4.0
-  - 1.3.0
-  - 1.2.1
-  - 1.2.0
-  - 1.1.0
-  - 1.0.1
-  - 1.0.0
+from unittest.mock import Mock
 
-dependencies:
-  - apache-airflow>=2.8.0
-  - apache-airflow-providers-apache-iceberg
+import pytest
 
-devel-dependencies:
-  - pyiceberg>=0.5.0
+from airflow.providers.openai.exceptions import OpenAIBatchJobException, OpenAIBatchTimeout
 
-integrations:
-  - integration-name: Tabular (deprecated)
-    external-doc-url: https://tabular.io/docs/
-    logo: /integration-logos/tabular/tabular.jpeg
-    tags: [software]
+
+@pytest.mark.parametrize(
+    "exception_class",
+    [
+        OpenAIBatchTimeout,
+        OpenAIBatchJobException,
+    ],
+)
+def test_wait_for_batch_raise_exception(exception_class):
+    mock_hook_instance = Mock()
+    mock_hook_instance.wait_for_batch.side_effect = exception_class
+    hook = mock_hook_instance
+    with pytest.raises(exception_class):
+        hook.wait_for_batch(batch_id="batch_id")

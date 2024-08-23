@@ -14,38 +14,3 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
----
-package-name: apache-airflow-providers-tabular
-name: Tabular
-description: |
-    `Tabular <https://tabular.io/>`__
-
-state: removed
-source-date-epoch: 1723970601
-# note that those versions are maintained by release manager - do not update them manually
-versions:
-  - 1.6.0
-  - 1.5.1
-  - 1.5.0
-  - 1.4.1
-  - 1.4.0
-  - 1.3.0
-  - 1.2.1
-  - 1.2.0
-  - 1.1.0
-  - 1.0.1
-  - 1.0.0
-
-dependencies:
-  - apache-airflow>=2.8.0
-  - apache-airflow-providers-apache-iceberg
-
-devel-dependencies:
-  - pyiceberg>=0.5.0
-
-integrations:
-  - integration-name: Tabular (deprecated)
-    external-doc-url: https://tabular.io/docs/
-    logo: /integration-logos/tabular/tabular.jpeg
-    tags: [software]
