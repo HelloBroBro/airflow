@@ -15,31 +15,19 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
+from __future__ import annotations
 
-"""${message}
+import pytest
 
-Revision ID: ${up_revision}
-Revises: ${down_revision | comma,n}
-Create Date: ${create_date}
+from airflow.providers.databricks.hooks.databricks_base import BaseDatabricksHook
 
-"""
-from typing import Sequence, Union
-
-from alembic import op
-import sqlalchemy as sa
-${imports if imports else ""}
-
-# revision identifiers, used by Alembic.
-revision = ${repr(up_revision)}
-down_revision = ${repr(down_revision)}
-branch_labels = ${repr(branch_labels)}
-depends_on = ${repr(depends_on)}
-fab_version = None
+DEFAULT_CONN_ID = "databricks_default"
 
 
-def upgrade() -> None:
-    ${upgrades if upgrades else "pass"}
-
-
-def downgrade() -> None:
-    ${downgrades if downgrades else "pass"}
+class TestBaseDatabricksHook:
+    def test_init_exception(self):
+        """
+        Tests handling incorrect parameters passed to ``__init__``
+        """
+        with pytest.raises(ValueError, match="Retry limit must be greater than or equal to 1"):
+            BaseDatabricksHook(databricks_conn_id=DEFAULT_CONN_ID, retry_limit=0)
