@@ -15,3 +15,35 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
+
+"""
+Remove redundant index.
+
+Revision ID: 16cbcb1c8c36
+Revises: 522625f6d606
+Create Date: 2024-09-20 09:32:48.707545
+
+"""
+
+from __future__ import annotations
+
+from alembic import op
+
+# revision identifiers, used by Alembic.
+revision = "16cbcb1c8c36"
+down_revision = "522625f6d606"
+branch_labels = None
+depends_on = None
+airflow_version = "3.0.0"
+
+
+def upgrade():
+    """Apply Remove redundant index."""
+    with op.batch_alter_table("log", schema=None) as batch_op:
+        batch_op.drop_index("idx_log_dag")
+
+
+def downgrade():
+    """Unapply Remove redundant index."""
+    with op.batch_alter_table("log", schema=None) as batch_op:
+        batch_op.create_index("idx_log_dag", ["dag_id"], unique=False)
