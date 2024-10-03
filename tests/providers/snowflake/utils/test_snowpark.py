@@ -1,4 +1,3 @@
-#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -19,21 +18,19 @@ from __future__ import annotations
 
 import pytest
 
-from airflow.providers.standard.hooks.filesystem import FSHook
-
-pytestmark = pytest.mark.db_test
+from airflow.providers.snowflake.utils.snowpark import inject_session_into_op_kwargs
 
 
-class TestFSHook:
-    def test_get_ui_field_behaviour(self):
-        fs_hook = FSHook()
-        assert fs_hook.get_ui_field_behaviour() == {
-            "hidden_fields": ["host", "schema", "port", "login", "password", "extra"],
-            "relabeling": {},
-            "placeholders": {},
-        }
-
-    def test_get_path(self):
-        fs_hook = FSHook(fs_conn_id="fs_default")
-
-        assert fs_hook.get_path() == "/"
+@pytest.mark.parametrize(
+    "func,expected_injected",
+    [
+        (lambda x: x, False),
+        (lambda: 1, False),
+        (lambda session: 1, True),
+        (lambda session, x: x, True),
+        (lambda x, session: 2 * x, True),
+    ],
+)
+def test_inject_session_into_op_kwargs(func, expected_injected):
+    result = inject_session_into_op_kwargs(func, {}, None)
+    assert ("session" in result) == expected_injected
