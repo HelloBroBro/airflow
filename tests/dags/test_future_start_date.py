@@ -17,16 +17,25 @@
 
 from __future__ import annotations
 
-from airflow.api_fastapi.views.public.connections import connections_router
-from airflow.api_fastapi.views.public.dag_run import dag_run_router
-from airflow.api_fastapi.views.public.dags import dags_router
-from airflow.api_fastapi.views.public.variables import variables_router
-from airflow.api_fastapi.views.router import AirflowRouter
+from datetime import timedelta
 
-public_router = AirflowRouter(prefix="/public")
+import pendulum
 
+from airflow.models.dag import DAG
+from airflow.operators.empty import EmptyOperator
+from airflow.operators.python import PythonOperator
 
-public_router.include_router(dags_router)
-public_router.include_router(connections_router)
-public_router.include_router(variables_router)
-public_router.include_router(dag_run_router)
+exec_date = pendulum.datetime(2021, 1, 1)
+fut_start_date = pendulum.datetime(2021, 2, 1)
+with DAG(
+    dag_id="test_dagrun_states_root_future",
+    schedule=timedelta(days=1),
+    catchup=True,
+    start_date=exec_date,
+) as dag:
+    EmptyOperator(task_id="current")
+    PythonOperator(
+        task_id="future",
+        python_callable=lambda: print("hello"),
+        start_date=fut_start_date,
+    )
