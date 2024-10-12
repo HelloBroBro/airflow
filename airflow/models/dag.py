@@ -2293,9 +2293,6 @@ class DAG(LoggingMixin):
 
         self.task_count = len(self.task_dict)
 
-    def run(self, *args, **kwargs):
-        """Leaving this here to be removed in other PR for simpler review."""
-
     def cli(self):
         """Exposes a CLI specific to this DAG."""
         check_cycle(self)
@@ -3045,6 +3042,18 @@ class DagModel(Base):
     @hybrid_property
     def dag_display_name(self) -> str:
         return self._dag_display_property_value or self.dag_id
+
+    @dag_display_name.expression  # type: ignore[no-redef]
+    def dag_display_name(self) -> str:
+        """
+        Expression part of the ``dag_display`` name hybrid property.
+
+        :meta private:
+        """
+        return case(
+            (self._dag_display_property_value.isnot(None), self._dag_display_property_value),
+            else_=self.dag_id,
+        )
 
     @classmethod
     @internal_api_call
