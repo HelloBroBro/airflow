@@ -179,6 +179,7 @@ if MYSQL_INNOVATION_RELEASE:
 ALLOWED_INSTALL_MYSQL_CLIENT_TYPES = ["mariadb", "mysql"]
 
 PIP_VERSION = "24.3.1"
+UV_VERSION = "0.4.29"
 
 DEFAULT_UV_HTTP_TIMEOUT = 300
 DEFAULT_WSL2_HTTP_TIMEOUT = 900
@@ -440,6 +441,7 @@ COMMITTERS = [
     "saguziel",
     "sekikn",
     "shahar1",
+    "tirkarthi",
     "turbaszek",
     "uranusjr",
     "utkarsharma2",
@@ -554,7 +556,6 @@ DEFAULT_EXTRAS = [
     "ssh",
     "statsd",
     "uv",
-    "virtualenv",
     # END OF EXTRAS LIST UPDATED BY PRE COMMIT
 ]
 
