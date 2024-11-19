@@ -19,11 +19,11 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import TYPE_CHECKING, Annotated, Any, Callable, Generic, List, Optional, TypeVar
+from typing import TYPE_CHECKING, Annotated, Any, Callable, Generic, List, Optional, TypeVar, Union, overload
 
 from fastapi import Depends, HTTPException, Query
 from pendulum.parsing.exceptions import ParserError
-from pydantic import AfterValidator, BaseModel
+from pydantic import AfterValidator, BaseModel, NonNegativeInt
 from sqlalchemy import Column, case, or_
 from sqlalchemy.inspection import inspect
 
@@ -66,7 +66,7 @@ class BaseParam(Generic[T], ABC):
         pass
 
 
-class LimitFilter(BaseParam[int]):
+class LimitFilter(BaseParam[NonNegativeInt]):
     """Filter on the limit."""
 
     def to_orm(self, select: Select) -> Select:
@@ -75,11 +75,11 @@ class LimitFilter(BaseParam[int]):
 
         return select.limit(self.value)
 
-    def depends(self, limit: int = 100) -> LimitFilter:
+    def depends(self, limit: NonNegativeInt = 100) -> LimitFilter:
         return self.set_value(limit)
 
 
-class OffsetFilter(BaseParam[int]):
+class OffsetFilter(BaseParam[NonNegativeInt]):
     """Filter on offset."""
 
     def to_orm(self, select: Select) -> Select:
@@ -87,7 +87,7 @@ class OffsetFilter(BaseParam[int]):
             return select
         return select.offset(self.value)
 
-    def depends(self, offset: int = 0) -> OffsetFilter:
+    def depends(self, offset: NonNegativeInt = 0) -> OffsetFilter:
         return self.set_value(offset)
 
 
@@ -409,6 +409,27 @@ def _safe_parse_datetime(date_to_check: str) -> datetime:
     """
     if not date_to_check:
         raise ValueError(f"{date_to_check} cannot be None.")
+    return _safe_parse_datetime_optional(date_to_check)
+
+
+@overload
+def _safe_parse_datetime_optional(date_to_check: str) -> datetime: ...
+
+
+@overload
+def _safe_parse_datetime_optional(date_to_check: None) -> None: ...
+
+
+def _safe_parse_datetime_optional(date_to_check: str | None) -> datetime | None:
+    """
+    Parse datetime and raise error for invalid dates.
+
+    Allow None values.
+
+    :param date_to_check: the string value to be parsed
+    """
+    if date_to_check is None:
+        return None
     try:
         return timezone.parse(date_to_check, strict=True)
     except (TypeError, ParserError):
@@ -615,6 +636,7 @@ def float_range_filter_factory(
 
 # Common Safe DateTime
 DateTimeQuery = Annotated[str, AfterValidator(_safe_parse_datetime)]
+OptionalDateTimeQuery = Annotated[Union[str, None], AfterValidator(_safe_parse_datetime_optional)]
 
 # DAG
 QueryLimit = Annotated[LimitFilter, Depends(LimitFilter().depends)]
